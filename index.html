@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DANYAL HACKER AI</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
+        #terminal { height: 80vh; overflow-y: auto; padding: 20px; border-bottom: 2px solid #0f0; background: rgba(0,20,0,0.9); }
+        .input-area { display: flex; padding: 10px; background: #111; }
+        input { flex: 1; background: transparent; border: none; color: #0f0; font-size: 18px; outline: none; }
+        button { background: #0f0; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+        .bot-msg { margin-bottom: 15px; border-left: 3px solid #0f0; padding-left: 10px; }
+        .user-msg { color: #fff; margin-bottom: 15px; text-align: right; }
+        .code-box { background: #222; color: #0ff; padding: 10px; border-radius: 5px; display: block; white-space: pre-wrap; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div class="bot-msg">SYSTEM READY... DANYAL AI v6.0 ACTIVE. <br>Target: Cybersecurity & Coding.</div>
+    </div>
+    <div class="input-area">
+        <span style="color:#0f0">root@danyal:~# </span>
+        <input type="text" id="userInput" placeholder="Enter command...">
+        <button onclick="askAI()">RUN</button>
+    </div>
+
+    <script>
+        const API_KEY = "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";
+
+        async function askAI() {
+            let input = document.getElementById('userInput');
+            let term = document.getElementById('terminal');
+            if(!input.value) return;
+
+            term.innerHTML += `<div class="user-msg">> ${input.value}</div>`;
+            let responseBox = document.createElement("div");
+            responseBox.className = "bot-msg";
+            responseBox.innerText = "Processing...";
+            term.appendChild(responseBox);
+            
+            let userText = input.value;
+            input.value = "";
+
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{role: "system", content: "You are a professional hacking assistant for Danyal. You only talk about cybersecurity and coding. If asked anything else, refuse. Provide code in blocks."}, {role: "user", content: userText}]
+                    })
+                });
+                const data = await res.json();
+                let reply = data.choices[0].message.content;
+                responseBox.innerHTML = "AI: " + reply.replace(/```([\s\S]*?)```/g, '<code class="code-box">$1</code>');
+            } catch (e) { responseBox.innerText = "Error: Connection Refused."; }
+            term.scrollTop = term.scrollHeight;
+        }
+    </script>
+</body>
+</html>
+
